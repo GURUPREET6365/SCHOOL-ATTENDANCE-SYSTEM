@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generate QR Code - School Attendance Manager</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="logo">School Attendance Manager</a>
+            <ul class="nav-menu">
+                <li><a href="index.html" class="nav-link">Home</a></li>
+                <li><a href="genqr.html" class="nav-link">Generate QR</a></li>
+                <li><a href="view-qr.html" class="nav-link">View QR Code</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <section class="hero-section">
+            <h1 class="hero-title">Generate QR Code</h1>
+            <p class="hero-subtitle">Create QR codes for attendance tracking</p>
+        </section>
+
+        <section class="qr-generator-section">
+            <div class="feature-card" style="max-width: 600px; margin: 0 auto;">
+                <h3 class="feature-title">QR Code Generator</h3>
+                <p class="feature-description">Fill in the details below to generate a QR code for attendance.</p>
+                
+                <form id="qrForm" class="qr-form">
+                    <div class="form-group">
+                        <label for="firstName">First Name:</label>
+                        <input type="text" id="firstName" name="first_name" placeholder="Enter your first name" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="lastName">Last Name:</label>
+                        <input type="text" id="lastName" name="last_name" placeholder="Enter your last name" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="email">Email:</label>
+                        <input type="email" id="email" name="email" placeholder="Enter your email address" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="studentId">Student ID:</label>
+                        <input type="number" id="studentId" name="student_id" placeholder="Enter student ID" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="standard">Standard/Grade:</label>
+                        <input type="number" id="standard" name="standard" placeholder="Enter standard/grade (e.g., 10)" min="1" max="12" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="streamORsection">Stream or Section:</label>
+                        <input type="text" id="streamORsection" name="streamORsection" placeholder="Enter stream or section (e.g., Science-A, Commerce-B)" required>
+                    </div>
+                    
+                    <button type="submit" class="submit-btn">
+                        ✨ Generate QR Code
+                    </button>
+                </form>
+                
+                <div id="loading" class="loading" style="display: none;">
+                    <p>✨ Generating your QR Code...</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script src="js/main.js"></script>
+    <script src="js/qr-generator.js"></script>
+</body>
+</html>

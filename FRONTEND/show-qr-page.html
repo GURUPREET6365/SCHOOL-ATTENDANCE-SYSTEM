@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Code Generated - School Attendance Manager</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="logo">School Attendance Manager</a>
+            <ul class="nav-menu">
+                <li><a href="index.html" class="nav-link">Home</a></li>
+                <li><a href="genqr.html" class="nav-link">Generate QR</a></li>
+                <li><a href="view-qr.html" class="nav-link">View QR Code</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <section class="hero-section">
+            <h1 class="hero-title">QR Code Generated</h1>
+            <p class="hero-subtitle">Your attendance QR code is ready</p>
+        </section>
+
+        <section class="qr-display-section">
+            <div class="feature-card" style="max-width: 600px; margin: 0 auto;">
+                <div id="qrContainer" class="qr-container">
+                    <img id="qrImage" src="" alt="Generated QR Code" class="qr-image">
+                </div>
+                
+                <div class="qr-actions">
+                    <button id="downloadBtn" class="action-btn download-btn">
+                        💾 Download QR Code
+                    </button>
+                    <button id="generateNewBtn" class="action-btn secondary-btn">
+                        🔄 Generate New QR
+                    </button>
+                </div>
+                
+                <div id="userInfo" class="user-info">
+                    <!-- User details will be displayed here -->
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script src="js/main.js"></script>
+    <script src="js/qr-display.js"></script>
+</body>
+</html>
