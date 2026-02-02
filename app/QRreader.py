@@ -1,69 +1,73 @@
 import cv2
 import requests
-import winsound
 import time
+import pygame
+import threading
+import time
+import os
 
+# print(os.getcwd())
+
+pygame.mixer.init()
+
+can_play = True
+
+def play_sound(file):
+    pygame.mixer.music.load(file)
+    pygame.mixer.music.play()
+
+def play_async(file):
+    threading.Thread(target=play_sound, args=(file,)).start()
 
 def opencv_camera():
 
-   capture = cv2.VideoCapture(0)
-   detector = cv2.QRCodeDetector()
+    capture = cv2.VideoCapture(0)
+    detector = cv2.QRCodeDetector()
 
-   last_scan = 0
-   last_secret = None
-   while True:
+    last_scan = 0   # timestamp cooldown
 
-      ret, frame = capture.read()
+    while True:
 
-      if not ret or frame is None:
-         continue
+        ret, frame = capture.read()
 
-      qr_secret, bbox, _ = detector.detectAndDecode(frame)
+        if not ret or frame is None:
+            continue
 
-      if (qr_secret and time.time() - last_scan > 3):
+        qr_secret, bbox, _ = detector.detectAndDecode(frame)
 
-         last_scan = time.time()
+        # QR detected + 3 second cooldown
+        if qr_secret and (time.time() - last_scan > 3):
 
-         print("QR:", qr_secret)
+            last_scan = time.time()   # cooldown starts IMMEDIATELY
 
-         url = f"http://127.0.0.1:8000/api/mark/attendance/{qr_secret}"
+            # print("QR:", qr_secret)
 
-         response = requests.get(url).json()
-         print(type(response['success']))
+            url = f"http://127.0.0.1:8000/api/mark/attendance/{qr_secret}"
+            response = requests.get(url).json()
 
-         if response['success']:
+            # stop any previous audio
+            pygame.mixer.music.stop()
 
-            winsound.Beep(1200, 700) 
-         
-         else:
-            winsound.Beep(1200, 1500) 
+            if response.get('success') and response.get('entry'):
+               play_async("app/sounds/you_may_now_enter.mp3")
 
-      cv2.imshow("Camera", frame)
+            elif response.get('success') and response.get('exit'):
+               play_async("app/sounds/you_may_now_leave.mp3")
 
-      if cv2.waitKey(1) & 0xFF == ord('q'):
-         break
+            else:
+               play_async("app/sounds/access_denied.mp3")
 
-   capture.release()
-   cv2.destroyAllWindows()
+        cv2.imshow("Camera", frame)
 
-   """
-   When you do:
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            break
 
-   cv2.imshow("Camera", frame)
+    capture.release()
+    cv2.destroyAllWindows()
 
-
-   OpenCV creates its own window.
-
-   When your loop ends, that window is STILL open in memory.
-
-   So we must tell OpenCV:
-
-   🧹 “Clean up everything.”
-
-   That’s what this does.
-   """
 
 opencv_camera()
+
 
 """
 

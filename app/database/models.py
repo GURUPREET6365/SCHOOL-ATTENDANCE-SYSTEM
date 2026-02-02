@@ -30,7 +30,7 @@ class Attendance(Base):
 
     id = Column(Integer, primary_key=True, nullable=False, index=True)
 
-    student_id = Column(Integer, ForeignKey("students.id", ondelete='CASCADE'))
+    student_id = Column(Integer, ForeignKey("students.student_id", ondelete='CASCADE'))
 
     present = Column(Boolean, nullable=False)
 

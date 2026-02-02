@@ -110,26 +110,26 @@ def mark_attendance(qr_secret, db: Session = Depends(get_db)):
         today_date = date.today()
         attendance = db.query(Attendance).filter(
         and_(
-            Attendance.student_id == student.id,
+            Attendance.student_id == student.student_id,
             Attendance.created_at == today_date, 
              Attendance.exit_time == None )).first()
         
         if attendance is None:
             current_time = datetime.now().time()
             # Then create new attendance with entry time only
-            new_attendance = Attendance(student_id=student.id, present=True, entry_time = current_time)
+            new_attendance = Attendance(student_id=student.student_id, present=True, entry_time = current_time)
 
             # add new attendance
             db.add(new_attendance)
             db.commit()
-            return {'success':True}
+            return {'success':True, 'entry':True}
         
         else:
             # if attendance has the entry time means today attendance is created.
             current_time = datetime.now().time()
             attendance.exit_time = current_time
             db.commit()
-            return {'success':True}
+            return {'success':True, 'exit':True}
 
     else:
         return {'success':False}
