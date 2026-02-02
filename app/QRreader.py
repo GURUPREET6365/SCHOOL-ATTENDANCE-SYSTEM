@@ -52,7 +52,7 @@ def opencv_camera():
                play_async("app/sounds/you_may_now_enter.mp3")
 
             elif response.get('success') and response.get('exit'):
-               play_async("app/sounds/you_may_now_leave.mp3")
+               play_async("app/sounds/you_may_now_exit.mp3")
 
             else:
                play_async("app/sounds/access_denied.mp3")
