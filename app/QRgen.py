@@ -12,11 +12,11 @@ This is the base directory i created so that i can move on.
 """
 
 
-def gen_QR_code(token:str, standard:int, streamORsection:str, student_id:int):
+def gen_QR_code(token:str,  student_id:int):
     # Generating qr code and storing into qr-code.
     # error is used to make the qr more reliable and able to scan even when damaged or get rubbed.
     # print('making the folder path...')
-    folder = BASE_DIR/'StudentQRcode'/f'class-{standard}'/f'streamORsection-{streamORsection}'/f'{student_id}'
+    folder = BASE_DIR/'StudentQRcode'
 
     print('making the path')
     folder.mkdir(parents=True, exist_ok=True)

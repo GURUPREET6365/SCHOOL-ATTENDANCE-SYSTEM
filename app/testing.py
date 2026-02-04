@@ -1,33 +1,38 @@
-import pygame
-import threading
 import time
-import os
+from datetime import datetime
+import random
 
-# print(os.getcwd())
-
-pygame.mixer.init()
-
-can_play = True
-
-def play_sound(file):
-    pygame.mixer.music.load(file)
-    pygame.mixer.music.play()
-
-def play_async(file):
-    threading.Thread(target=play_sound, args=(file,)).start()
+from rich.live import Live
+from rich.table import Table
 
 while True:
+    data = {
+        "id": f"123",
+        "name": f"dfg",
+        "entry_time": f"342",
+        "exit_time": f"asdf"
+    }
 
-    access = "granted"   # or "denied"
+    def generate_table() -> Table:
+        """Make a new table."""
+        table = Table()
+        table.add_column("ID")
+        table.add_column("Name")
+        table.add_column("Entry Time")
+        table.add_column("Exit Time")
+        table.add_column("Date")
+        
+        table.add_row(
+                str(data["id"]),
+                data["name"],
+                str(data["entry_time"]),
+                str(data["exit_time"]),
+                str(datetime.now().date())
+            )
 
-    if access == "granted" and can_play:
-        play_async("app/sounds/access_granted.mp3")
-        can_play = False
+        return table
 
-    elif access == "denied" and can_play:
-        play_async("app/sounds/access_granted.mp3")
-        can_play = False
 
-    if not can_play:
-        time.sleep(4)
-        can_play = True
+    with Live(generate_table(), refresh_per_second=4) as live:
+        live.update(generate_table())
+

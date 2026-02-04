@@ -4,7 +4,9 @@ import time
 import pygame
 import threading
 import time
-import os
+from datetime import datetime
+from rich.live import Live
+from rich.table import Table
 
 # print(os.getcwd())
 
@@ -19,51 +21,98 @@ def play_sound(file):
 def play_async(file):
     threading.Thread(target=play_sound, args=(file,)).start()
 
+# Creating the data json
+data = {
+        "id": "",
+        "name": "",
+        "entry_time": "",
+        "exit_time": ""
+    }
+
+# This will be initialized first then created the table and will update it.
+def generate_table() -> Table:
+
+    table = Table(
+        title="[bold cyan]📡 Smart Attendance Scanner[/bold cyan]",
+        show_header=True,
+        header_style="bold white on blue",
+        border_style="bright_blue"
+    )
+
+    table.add_column("ID", style="yellow", justify="center")
+    table.add_column("Name", style="green")
+    table.add_column("Entry Time", style="cyan")
+    table.add_column("Exit Time", style="magenta")
+    table.add_column("Date", style="white")
+
+    table.add_row(
+        f"[bold yellow]{data['id']}[/bold yellow]",
+        f"[bold green]{data['name']}[/bold green]",
+        f"[cyan]{data['entry_time']}[/cyan]",
+        f"[magenta]{data['exit_time']}[/magenta]",
+        f"[white]{datetime.now().date()}[/white]"
+    )
+
+    return table
+
+
 def opencv_camera():
+   print("Welcome to my smart attendance system where you can mark your presence with accurate timings and also can see your records.")
+   capture = cv2.VideoCapture(0)
+   detector = cv2.QRCodeDetector()
+   
+   last_scan = 0   # timestamp cooldown
+   with Live(generate_table(), refresh_per_second=4) as live:
+      while True:
 
-    capture = cv2.VideoCapture(0)
-    detector = cv2.QRCodeDetector()
+         ret, frame = capture.read()
 
-    last_scan = 0   # timestamp cooldown
+         if not ret or frame is None:
+               continue
 
-    while True:
+         qr_secret, bbox, _ = detector.detectAndDecode(frame)
 
-        ret, frame = capture.read()
+         # QR detected + 3 second cooldown
+         if qr_secret and (time.time() - last_scan > 3):
 
-        if not ret or frame is None:
-            continue
+               last_scan = time.time()   # cooldown starts IMMEDIATELY
 
-        qr_secret, bbox, _ = detector.detectAndDecode(frame)
+               # print("QR:", qr_secret)
 
-        # QR detected + 3 second cooldown
-        if qr_secret and (time.time() - last_scan > 3):
+               url = f"http://127.0.0.1:8000/api/mark/attendance/{qr_secret}"
+               response = requests.get(url).json()
+               
+               # Creating a data model so that the data can be stored safely.
 
-            last_scan = time.time()   # cooldown starts IMMEDIATELY
+               # stop any previous audio
+               pygame.mixer.music.stop()
 
-            # print("QR:", qr_secret)
+               if response.get('success'):
+                  # Here we are updating the data dynamically.
+                  data["id"] = str(response.get("id"))
+                  data["name"] = response.get("name")
+                  data["entry_time"] = str(response.get("entry_time"))
+                  data["exit_time"] = str(response.get("exit_time"))
 
-            url = f"http://127.0.0.1:8000/api/mark/attendance/{qr_secret}"
-            response = requests.get(url).json()
+                  live.update(generate_table())
 
-            # stop any previous audio
-            pygame.mixer.music.stop()
+                  if response.get('entry'):
+                     play_async("app/sounds/you_may_now_enter.mp3")
 
-            if response.get('success') and response.get('entry'):
-               play_async("app/sounds/you_may_now_enter.mp3")
+                  elif response.get('exit'):
+                     play_async("app/sounds/you_may_now_exit.mp3")
 
-            elif response.get('success') and response.get('exit'):
-               play_async("app/sounds/you_may_now_exit.mp3")
+               else:
+                  play_async("app/sounds/access_denied.mp3")
 
-            else:
-               play_async("app/sounds/access_denied.mp3")
+         cv2.imshow("Camera", frame)
 
-        cv2.imshow("Camera", frame)
+         if cv2.waitKey(1) & 0xFF == ord('q'):
+               break
 
-        if cv2.waitKey(1) & 0xFF == ord('q'):
-            break
+      capture.release()
+      cv2.destroyAllWindows()
 
-    capture.release()
-    cv2.destroyAllWindows()
 
 
 opencv_camera()

@@ -13,8 +13,6 @@ class Students(Base):
     email = Column(String, unique=True, nullable=False)
     student_id = Column(Integer, unique=True, nullable=False)
     student_qr_secret = Column(String, unique=True, nullable=False)
-    standard = Column(Integer, nullable=True)
-    streamORsection= Column(String, nullable=True)
     created_at = Column(
         DateTime(timezone=True),
         server_default=func.now()
