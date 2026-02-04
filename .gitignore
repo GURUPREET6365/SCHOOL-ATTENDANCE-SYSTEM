@@ -245,7 +245,11 @@ temp/
 tmp/
 
 # QR Code Images - Keep folder structure but ignore all QR code files
-app/StudentQRcode/*/
+app/StudentQRcode/*.png
+app/StudentQRcode/*.jpg
+app/StudentQRcode/*.jpeg
+app/StudentQRcode/*.gif
+app/StudentQRcode/**/
 !app/StudentQRcode/
 !app/StudentQRcode/.gitkeep
 
