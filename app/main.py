@@ -1,5 +1,7 @@
-from fastapi import FastAPI, Depends, HTTPException, status
+from fastapi import FastAPI, Depends, HTTPException, status, Request, Form
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import HTMLResponse, FileResponse
+from fastapi.templating import Jinja2Templates
 from app.database.pydantic_model import GenQR
 from app.database.database import get_db
 from sqlalchemy.orm import Session
@@ -8,13 +10,16 @@ import secrets
 from app.QRgen import gen_QR_code
 from datetime import datetime, date
 from sqlalchemy import and_
-from fastapi.responses import FileResponse
 from pathlib import Path
-
-BASE_DIR = Path(__file__).parent
-
+from fastapi.staticfiles import StaticFiles
 
 app = FastAPI()
+BASE_DIR = Path(__file__).parent
+
+# Setup templates
+templates = Jinja2Templates(directory=str(BASE_DIR / "templates"))
+
+
 
 origins = ['*']
 
@@ -26,9 +31,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-@app.get('/')
-def root():
-    return {'message':'This is the school attendance manager system.'}
+@app.get('/', response_class=HTMLResponse)
+def home(request: Request):
+    return templates.TemplateResponse("home.html", {"request": request})
 
 @app.post('/api/qr-gen')
 def QRgen(request:GenQR,  db: Session = Depends(get_db)):
@@ -89,6 +94,26 @@ def QRgen(request:GenQR,  db: Session = Depends(get_db)):
 
                 return FileResponse(response_file_path, media_type='image/png', filename=f'{request.first_name}.png')
 
+@app.get('/qrs/{student_id}.png')
+def get_qr_image(student_id: str):
+    """Serve QR code images directly for mobile access"""
+    qr_base_path = BASE_DIR / 'StudentQRcode'
+    
+    # First, check if QR code exists directly in the StudentQRcode folder (flat structure)
+    direct_file_path = qr_base_path / f'{student_id}.png'
+    if direct_file_path.exists():
+        return FileResponse(str(direct_file_path), media_type='image/png', filename=f'{student_id}.png')
+    
+    # If not found in flat structure, search in nested directories
+    for p in qr_base_path.rglob("*"):
+        if p.is_dir() and p.name == f'{student_id}':
+            nested_file_path = p / f'{student_id}.png'
+            if nested_file_path.exists():
+                return FileResponse(str(nested_file_path), media_type='image/png', filename=f'{student_id}.png')
+    
+    # If we reach here, no QR code was found
+    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"QR code with id: {student_id} not found.")
+
 @app.get('/api/view/QRcode/{student_id}')
 def view_qrcode(student_id):
     print(student_id)
@@ -97,7 +122,7 @@ def view_qrcode(student_id):
         return FileResponse(path=path, media_type='image/png', filename=f'{student_id}.png')
         
     else:
-        HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"QR code with id: {student_id} not found.")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"QR code with id: {student_id} not found.")
 
 @app.get('/api/mark/attendance/{qr_secret}')
 def mark_attendance(qr_secret, db: Session = Depends(get_db)):

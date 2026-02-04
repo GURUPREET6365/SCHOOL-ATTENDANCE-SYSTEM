@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>School Attendance Manager - QR Generator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+        }
+        
+        .title {
+            color: #333;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+        
+        .subtitle {
+            color: #666;
+            font-size: 1.1em;
+            margin-bottom: 30px;
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+            text-align: left;
+        }
+        
+        label {
+            display: block;
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 1.1em;
+        }
+        
+        input[type="number"] {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            font-size: 1.1em;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+        
+        input[type="number"]:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+        
+        .qr-preview {
+            margin-top: 30px;
+            display: none;
+            text-align: center;
+        }
+        
+        .qr-preview h3 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.3em;
+        }
+        
+        .qr-preview img {
+            width: 100%;
+            max-width: 350px;
+            height: auto;
+            border: 3px solid #e9ecef;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            background: white;
+            padding: 15px;
+        }
+        
+        .student-info {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            color: #495057;
+        }
+        
+        .student-info h4 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 20px;
+            display: none;
+            font-weight: 500;
+        }
+        
+        .search-new-btn {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            font-size: 1em;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: background 0.3s ease;
+        }
+        
+        .search-new-btn:hover {
+            background: #5a6268;
+        }
+        
+        /* Mobile optimizations */
+        @media (max-width: 768px) {
+            .container {
+                padding: 30px 20px;
+                margin: 10px;
+                border-radius: 15px;
+            }
+            
+            .title {
+                font-size: 2em;
+            }
+            
+            .qr-preview img {
+                max-width: 300px;
+                padding: 10px;
+            }
+            
+            body {
+                padding: 10px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .container {
+                padding: 25px 15px;
+            }
+            
+            .title {
+                font-size: 1.8em;
+            }
+            
+            .qr-preview img {
+                max-width: 280px;
+                border-width: 2px;
+                border-radius: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="title">🎓 QR Generator</h1>
+        <p class="subtitle">Generate QR codes for student attendance</p>
+        
+        <form id="qrForm">
+            <div class="form-group">
+                <label for="studentId">Student ID:</label>
+                <input type="number" id="studentId" name="student_id" placeholder="Enter student ID" required min="1">
+            </div>
+            
+            <button type="submit" class="btn">📱 Show QR Code</button>
+        </form>
+        
+        <div id="qrPreview" class="qr-preview">
+            <h3>📱 Scan QR Code</h3>
+            <img id="qrImage" src="" alt="QR Code">
+            <div id="studentInfo" class="student-info">
+                <!-- Student details will be displayed here -->
+            </div>
+            <button type="button" id="searchNewBtn" class="search-new-btn">🔍 Search Another</button>
+        </div>
+        
+        <div id="errorMessage" class="error-message"></div>
+    </div>
+    
+    <script>
+        document.getElementById('qrForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const studentId = document.getElementById('studentId').value;
+            if (!studentId) {
+                showError('Please enter a student ID');
+                return;
+            }
+            
+            // Generate the QR URL
+            const baseUrl = window.location.origin;
+            const qrUrl = `${baseUrl}/qrs/${studentId}.png`;
+            
+            // Try to load and preview the QR code
+            const qrImage = document.getElementById('qrImage');
+            qrImage.src = qrUrl;
+            qrImage.onload = function() {
+                document.getElementById('qrPreview').style.display = 'block';
+                document.getElementById('studentInfo').innerHTML = `
+                    <h4>Student Details:</h4>
+                    <p><strong>Student ID:</strong> ${studentId}</p>
+                    <p><strong>Status:</strong> QR Code Ready for Scanning</p>
+                `;
+                hideError();
+                
+                // Scroll to QR code for better mobile experience
+                document.getElementById('qrPreview').scrollIntoView({ 
+                    behavior: 'smooth', 
+                    block: 'center' 
+                });
+            };
+            qrImage.onerror = function() {
+                document.getElementById('qrPreview').style.display = 'none';
+                showError('QR code not found for this student ID. Please generate it first using the QR generation page.');
+            };
+        });
+        
+        document.getElementById('searchNewBtn').addEventListener('click', function() {
+            // Hide QR preview
+            document.getElementById('qrPreview').style.display = 'none';
+            
+            // Clear the form
+            document.getElementById('qrForm').reset();
+            
+            // Hide any error messages
+            hideError();
+            
+            // Scroll back to the form
+            document.getElementById('qrForm').scrollIntoView({ 
+                behavior: 'smooth', 
+                block: 'center' 
+            });
+            
+            // Focus on input for better UX
+            document.getElementById('studentId').focus();
+        });
+        
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+        }
+        
+        function hideError() {
+            document.getElementById('errorMessage').style.display = 'none';
+        }
+        
+        // Auto-focus on input when page loads
+        window.addEventListener('load', function() {
+            document.getElementById('studentId').focus();
+        });
+    </script>
+</body>
+</html>

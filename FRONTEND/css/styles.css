@@ -188,6 +188,11 @@ body {
     opacity: 0.05;
 }
 
+.feature-card:hover .feature-icon {
+    transform: scale(1.1) rotate(5deg);
+    text-shadow: 0 0 30px rgba(99, 102, 241, 0.5);
+}
+
 .feature-card:hover {
     transform: translateY(-8px);
     border-color: var(--border-hover);
@@ -202,11 +207,10 @@ body {
 .feature-icon {
     font-size: 3.5rem;
     margin-bottom: 1.5rem;
-    background: var(--accent-gradient);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
     display: block;
+    color: var(--accent-primary);
+    text-shadow: 0 0 20px rgba(99, 102, 241, 0.3);
+    transition: all 0.3s ease;
 }
 
 .feature-title {
