@@ -19,6 +19,9 @@ BASE_DIR = Path(__file__).parent
 # Setup templates
 templates = Jinja2Templates(directory=str(BASE_DIR / "templates"))
 
+# Mount sounds directory for audio feedback
+app.mount("/sounds", StaticFiles(directory=str(BASE_DIR / "sounds")), name="sounds")
+
 
 
 origins = ['*']
@@ -124,6 +127,11 @@ def view_qrcode(student_id):
     else:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"QR code with id: {student_id} not found.")
 
+@app.get('/scanner', response_class=HTMLResponse)
+def scanner_page(request: Request):
+    """Render the QR code scanning page"""
+    return templates.TemplateResponse("scanner.html", {"request": request})
+
 @app.get('/api/mark/attendance/{qr_secret}')
 def mark_attendance(qr_secret, db: Session = Depends(get_db)):
     student = db.query(Students).filter(Students.student_qr_secret == qr_secret).first()
@@ -137,6 +145,8 @@ def mark_attendance(qr_secret, db: Session = Depends(get_db)):
             Attendance.created_at == today_date, 
             Attendance.exit_time == None )).first()
         # Here to filter the attendance table, we need exit_time for testing purpose only, because if we don't write it then new rows will not created for todays date exit time, and that can not be good for showcase, and it will only update the time exit time if entry is already did.
+
+        # NOTE: Also add the exit_time so that the time will not update and will not do anything when already is marked.
         if attendance is None:
             current_time = datetime.now().time()
             # Then create new attendance with entry time only
